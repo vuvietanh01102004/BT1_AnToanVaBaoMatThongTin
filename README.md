@@ -533,6 +533,160 @@ Playfair Cipher sử dụng bảng chữ cái 5×5 gồm 25 ký tự (thường 
 ## Cài đặt thuật toán mã hoá và giải mã bằng code C++ và bằng html+css+javascript
 ### Giải mã bằng code C++
 ``` cpp
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cctype>
+#include <algorithm>
+using namespace std;
+
+// Tạo bảng chữ cái 5x5 từ khóa
+string makeMatrix(const string& rawKey) {
+    string key = rawKey + "ABCDEFGHIKLMNOPQRSTUVWXYZ"; // Gộp J vào I
+    vector<bool> used(26, false);
+    string matrix = "";
+
+    for (size_t i = 0; i < key.size(); ++i) {
+        char ch = toupper(key[i]);
+        if (!isalpha(ch)) continue;
+        if (ch == 'J') ch = 'I';
+        int idx = ch - 'A';
+        if (!used[idx]) {
+            used[idx] = true;
+            matrix += ch;
+        }
+    }
+
+    return matrix.substr(0, 25);
+}
+
+// Tìm vị trí ký tự trong bảng
+pair<int, int> getPos(char c, const string& matrix) {
+    if (c == 'J') c = 'I';
+    int index = matrix.find(c);
+    return make_pair(index / 5, index % 5);
+}
+
+// Chuẩn hóa văn bản đầu vào
+string preprocess(const string& text) {
+    string cleaned = "";
+    for (size_t i = 0; i < text.size(); ++i) {
+        char ch = toupper(text[i]);
+        if (isalpha(ch)) {
+            if (ch == 'J') ch = 'I';
+            cleaned += ch;
+        }
+    }
+
+    string result = "";
+    for (size_t i = 0; i < cleaned.size(); ++i) {
+        result += cleaned[i];
+        if (i + 1 < cleaned.size() && cleaned[i] == cleaned[i + 1]) {
+            result += 'X';
+        }
+    }
+
+    if (result.size() % 2 != 0) result += 'X';
+    return result;
+}
+
+// Mã hóa văn bản
+string encryptPlayfair(const string& text, const string& key) {
+    string matrix = makeMatrix(key);
+    string prepared = preprocess(text);
+    string cipher = "";
+
+    for (size_t i = 0; i + 1 < prepared.size(); i += 2) {
+        char a = prepared[i];
+        char b = prepared[i + 1];
+        pair<int, int> pa = getPos(a, matrix);
+        pair<int, int> pb = getPos(b, matrix);
+        int ra = pa.first, ca = pa.second;
+        int rb = pb.first, cb = pb.second;
+
+        if (ra == rb) {
+            cipher += matrix[ra * 5 + (ca + 1) % 5];
+            cipher += matrix[rb * 5 + (cb + 1) % 5];
+        } else if (ca == cb) {
+            cipher += matrix[((ra + 1) % 5) * 5 + ca];
+            cipher += matrix[((rb + 1) % 5) * 5 + cb];
+        } else {
+            cipher += matrix[ra * 5 + cb];
+            cipher += matrix[rb * 5 + ca];
+        }
+    }
+
+    return cipher;
+}
+
+// Giải mã văn bản
+string decryptPlayfair(const string& cipher, const string& key) {
+    string matrix = makeMatrix(key);
+    string plain = "";
+
+    for (size_t i = 0; i + 1 < cipher.size(); i += 2) {
+        char a = cipher[i];
+        char b = cipher[i + 1];
+        pair<int, int> pa = getPos(a, matrix);
+        pair<int, int> pb = getPos(b, matrix);
+        int ra = pa.first, ca = pa.second;
+        int rb = pb.first, cb = pb.second;
+
+        if (ra == rb) {
+            plain += matrix[ra * 5 + (ca + 4) % 5];
+            plain += matrix[rb * 5 + (cb + 4) % 5];
+        } else if (ca == cb) {
+            plain += matrix[((ra + 4) % 5) * 5 + ca];
+            plain += matrix[((rb + 4) % 5) * 5 + cb];
+        } else {
+            plain += matrix[ra * 5 + cb];
+            plain += matrix[rb * 5 + ca];
+        }
+    }
+
+    return plain;
+}
+
+int main() {
+    string text, key;
+    cout << "Nhap van ban: ";
+    getline(cin, text);
+    cout << "Nhap khoa: ";
+    getline(cin, key);
+
+    int choice;
+    cout << "Chon chuc nang (1: Ma hoa, 2: Giai ma): ";
+    cin >> choice;
+
+    if (choice == 1) {
+        cout << "Ban ma hoa: " << encryptPlayfair(text, key) << endl;
+    } else if (choice == 2) {
+        cout << "Ban giai ma: " << decryptPlayfair(text, key) << endl;
+    } else {
+        cout << "Lua chon khong hop le!" << endl;
+    }
+
+    return 0;
+}
+```
+
+**Kết quả**
+- MÃ HOÁ
+<img width="740" height="342" alt="image" src="https://github.com/user-attachments/assets/2feb1c00-b690-45fd-8625-df7ab5e6f617" />
+
+- GIẢI MÃ
+<img width="824" height="398" alt="image" src="https://github.com/user-attachments/assets/e896cdcd-ac33-4b0d-be3e-fd06e262ab4e" />
+
+### Giải mã bằng html+css+javascript
+- MÃ HOÁ
+<img width="1021" height="715" alt="image" src="https://github.com/user-attachments/assets/109d17c8-8a1f-4344-91f4-a195de88b5fe" />
+
+- GIẢI MÃ
+<img width="994" height="705" alt="image" src="https://github.com/user-attachments/assets/f6692212-c74f-4a32-be6a-e14e1ae8d3ae" />
+
+
+
+
 
 
 

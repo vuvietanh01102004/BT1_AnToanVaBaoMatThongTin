@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Mã hóa Hoán vị</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f9ff;
+      max-width: 600px;
+      margin: auto;
+      padding: 40px;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔐 Mã hóa Hoán vị (Transposition Cipher)</h2>
+
+  <label for="inputText">Văn bản:</label>
+  <textarea id="inputText" rows="4" placeholder="Nhập văn bản cần mã hóa hoặc giải mã...">THAINGUYENDEP</textarea>
+
+  <label for="keyInput">Khóa hoán vị (ví dụ: 2 4 1 3):</label>
+  <input type="text" id="keyInput" value="2 4 1 3">
+
+  <button onclick="encrypt()">Mã hóa</button>
+  <button onclick="decrypt()">Giải mã</button>
+
+  <h3>Kết quả:</h3>
+  <textarea id="outputText" rows="4" readonly></textarea>
+
+  <script>
+    function parseKey(keyStr) {
+      return keyStr.trim().split(/\s+/).map(Number);
+    }
+
+    function encrypt() {
+      const text = document.getElementById("inputText").value;
+      const key = parseKey(document.getElementById("keyInput").value);
+      const cols = key.length;
+      const rows = Math.ceil(text.length / cols);
+      const matrix = Array.from({ length: rows }, () => Array(cols).fill('X'));
+
+      let idx = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (idx < text.length) {
+            matrix[r][c] = text[idx++];
+          }
+        }
+      }
+
+      let result = '';
+      for (let k = 0; k < key.length; k++) {
+        const col = key[k] - 1;
+        for (let r = 0; r < rows; r++) {
+          result += matrix[r][col];
+        }
+      }
+
+      document.getElementById("outputText").value = result;
+    }
+
+    function decrypt() {
+      const cipher = document.getElementById("inputText").value;
+      const key = parseKey(document.getElementById("keyInput").value);
+      const cols = key.length;
+      const rows = Math.ceil(cipher.length / cols);
+      const matrix = Array.from({ length: rows }, () => Array(cols).fill(''));
+
+      let idx = 0;
+      for (let k = 0; k < key.length; k++) {
+        const col = key[k] - 1;
+        for (let r = 0; r < rows; r++) {
+          if (idx < cipher.length) {
+            matrix[r][col] = cipher[idx++];
+          }
+        }
+      }
+
+      let result = '';
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          result += matrix[r][c];
+        }
+      }
+
+      result = result.replace(/X+$/, '');
+      document.getElementById("outputText").value = result;
+    }
+  </script>
+</body>
+</html>

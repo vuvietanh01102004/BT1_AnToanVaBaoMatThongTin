@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Mã hóa Caesar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef;
+            padding: 40px;
+            max-width: 600px;
+            margin: auto;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #0077cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005fa3;
+        }
+    </style>
+</head>
+<body>
+    <h2>🔐 Mã hóa Caesar cổ điển</h2>
+    <label for="inputText">Nhập văn bản:</label>
+    <textarea id="inputText" rows="4" placeholder="Nhập văn bản cần mã hóa..."></textarea>
+
+    <label for="key">Khóa (0–25):</label>
+    <input type="number" id="key" min="0" max="25" value="3">
+
+    <button onclick="encryptCaesar()">Mã hóa</button>
+    <button onclick="decryptCaesar()">Giải mã</button>
+
+    <h3>Kết quả:</h3>
+    <textarea id="outputText" rows="4" readonly></textarea>
+
+    <script>
+        function caesar(text, shift) {
+            let result = '';
+            shift = (shift % 26 + 26) % 26;
+
+            for (let char of text) {
+                if (char.match(/[A-Za-z]/)) {
+                    let base = char === char.toUpperCase() ? 'A'.charCodeAt(0) : 'a'.charCodeAt(0);
+                    let code = ((char.charCodeAt(0) - base + shift) % 26) + base;
+                    result += String.fromCharCode(code);
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        function encryptCaesar() {
+            const text = document.getElementById("inputText").value;
+            const key = parseInt(document.getElementById("key").value);
+            document.getElementById("outputText").value = caesar(text, key);
+        }
+
+        function decryptCaesar() {
+            const text = document.getElementById("inputText").value;
+            const key = parseInt(document.getElementById("key").value);
+            document.getElementById("outputText").value = caesar(text, 26 - key);
+        }
+    </script>
+</body>
+</html>

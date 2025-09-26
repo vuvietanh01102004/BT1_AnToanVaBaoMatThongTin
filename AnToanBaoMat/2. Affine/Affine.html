@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Mã hóa Affine Cipher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            max-width: 600px;
+            margin: auto;
+            padding: 40px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #0077cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005fa3;
+        }
+    </style>
+</head>
+<body>
+    <h2>🔐 Mã hóa Affine Cipher</h2>
+
+    <label for="inputText">Văn bản:</label>
+    <textarea id="inputText" rows="4" placeholder="Nhập văn bản cần mã hóa hoặc giải mã..."></textarea>
+
+    <label for="a">Khóa a (nguyên tố cùng 26):</label>
+    <input type="number" id="a" min="1" max="25" value="5">
+
+    <label for="b">Khóa b (0–25):</label>
+    <input type="number" id="b" min="0" max="25" value="8">
+
+    <button onclick="encryptAffine()">Mã hóa</button>
+    <button onclick="decryptAffine()">Giải mã</button>
+
+    <h3>Kết quả:</h3>
+    <textarea id="outputText" rows="4" readonly></textarea>
+
+    <script>
+        function mod26(n) {
+            return ((n % 26) + 26) % 26;
+        }
+
+        function modInverse(a) {
+            for (let i = 1; i < 26; i++) {
+                if ((a * i) % 26 === 1) return i;
+            }
+            return -1;
+        }
+
+        function affine(text, a, b, decrypt = false) {
+            let result = '';
+            const a_inv = modInverse(a);
+            if (decrypt && a_inv === -1) return "Không thể giải mã: a không có nghịch đảo modulo 26.";
+
+            for (let char of text) {
+                if (/[A-Za-z]/.test(char)) {
+                    const base = char === char.toUpperCase() ? 'A'.charCodeAt(0) : 'a'.charCodeAt(0);
+                    const x = char.charCodeAt(0) - base;
+                    const y = decrypt
+                        ? mod26(a_inv * (x - b))
+                        : mod26(a * x + b);
+                    result += String.fromCharCode(y + base);
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        function encryptAffine() {
+            const text = document.getElementById("inputText").value;
+            const a = parseInt(document.getElementById("a").value);
+            const b = parseInt(document.getElementById("b").value);
+            document.getElementById("outputText").value = affine(text, a, b, false);
+        }
+
+        function decryptAffine() {
+            const text = document.getElementById("inputText").value;
+            const a = parseInt(document.getElementById("a").value);
+            const b = parseInt(document.getElementById("b").value);
+            document.getElementById("outputText").value = affine(text, a, b, true);
+        }
+    </script>
+</body>
+</html>
